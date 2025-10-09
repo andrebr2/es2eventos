@@ -7,7 +7,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "emails_participantes")
+@Table(name = "tb_emails_participantes")
 public class EmailParticipante {
 
 	@Id
