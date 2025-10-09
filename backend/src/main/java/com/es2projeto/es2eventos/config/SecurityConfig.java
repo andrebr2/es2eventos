@@ -3,46 +3,34 @@ package com.es2projeto.es2eventos.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-import java.util.Arrays;
 
 @Configuration
-@EnableWebSecurity
 public class SecurityConfig {
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(Arrays.asList("*")); // Ou especifique origens específicas
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
-        configuration.setAllowCredentials(false); // Se usar credentials, defina como true e especifique origens
-        
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
+	// Bean para criptografia de senhas
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .csrf(csrf -> csrf.disable())
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(authz -> authz
-                .requestMatchers("/h2-console/**").permitAll()
-                .anyRequest().permitAll()
-            )
-            .headers(headers -> headers
-                .frameOptions(frame -> frame.disable())
-            );
+	// Configuração de segurança
+	@Bean
+	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		http
+				// Desabilita CSRF e frame options para H2 console
+				.csrf(csrf -> csrf.disable())
+				.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()))
+				// Configuração de rotas e roles
+				.authorizeHttpRequests(auth -> auth.requestMatchers("/h2-console/**").permitAll()
+						.requestMatchers("/participante/auth/**").permitAll().requestMatchers("/admin/**")
+						.hasRole("ADMIN").requestMatchers("/organizador/**").hasRole("ORGANIZADOR")
+						.requestMatchers("/participantes/**").hasRole("PARTICIPANTE").anyRequest().authenticated())
+				// Login e logout
+				.formLogin(form -> form.permitAll()).logout(logout -> logout.permitAll());
 
-        return http.build();
-    }
+		return http.build();
+	}
 }
