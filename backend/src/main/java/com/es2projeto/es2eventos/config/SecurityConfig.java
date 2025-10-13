@@ -2,35 +2,41 @@ package com.es2projeto.es2eventos.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 public class SecurityConfig {
 
-	// Bean para criptografia de senhas
+	private final JwtAuthenticationFilter jwtAuthFilter;
+
+	public SecurityConfig(JwtAuthenticationFilter jwtAuthFilter) {
+		this.jwtAuthFilter = jwtAuthFilter;
+	}
+
+	@Bean
+	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		http.csrf(csrf -> csrf.disable()).authorizeHttpRequests(
+				auth -> auth.requestMatchers("/auth/**", "/h2-console/**").permitAll().anyRequest().authenticated())
+				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+				.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+
+		return http.build();
+	}
+
 	@Bean
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
 
-	// Configuração de segurança
 	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		http
-				// Desabilita CSRF e frame options para H2 console
-				.csrf(csrf -> csrf.disable())
-				.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()))
-				// Configuração de rotas e roles
-				.authorizeHttpRequests(auth -> auth.requestMatchers("/h2-console/**").permitAll()
-						.requestMatchers("/participante/auth/**").permitAll().requestMatchers("/admin/**")
-						.hasRole("ADMIN").requestMatchers("/organizador/**").hasRole("ORGANIZADOR")
-						.requestMatchers("/participantes/**").hasRole("PARTICIPANTE").anyRequest().authenticated())
-				// Login e logout
-				.formLogin(form -> form.permitAll()).logout(logout -> logout.permitAll());
-
-		return http.build();
+	public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+		return config.getAuthenticationManager();
 	}
 }

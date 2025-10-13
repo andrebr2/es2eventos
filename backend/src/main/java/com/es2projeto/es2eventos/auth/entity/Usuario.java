@@ -1,79 +1,35 @@
 package com.es2projeto.es2eventos.auth.entity;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.List;
 
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
+import com.es2projeto.es2eventos.participante.entities.Participante;
 
-import jakarta.persistence.Column;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "tb_usuarios")
-public class Usuario implements UserDetails, Serializable {
+@Table(name = "tb_usuario")
+public class Usuario implements Serializable {
 
-    private static final long serialVersionUID = 1L;
-    
+	private static final long serialVersionUID = 1L;
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
 	private String nome;
-
-	@Column(unique = true, nullable = false)
 	private String email;
-
-	@Column(nullable = false)
 	private String senha;
 
-	@Enumerated(EnumType.STRING)
-	private Perfil perfil;
+	@OneToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "participante_id", referencedColumnName = "id")
+	private Participante participante;
 
-	// ===== Implementações de UserDetails =====
-	@Override
-	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return List.of(() -> "ROLE_" + perfil.name());
-	}
-
-	@Override
-	public String getPassword() {
-		return senha;
-	}
-
-	@Override
-	public String getUsername() {
-		return email;
-	}
-
-	@Override
-	public boolean isAccountNonExpired() {
-		return true;
-	}
-
-	@Override
-	public boolean isAccountNonLocked() {
-		return true;
-	}
-
-	@Override
-	public boolean isCredentialsNonExpired() {
-		return true;
-	}
-
-	@Override
-	public boolean isEnabled() {
-		return true;
-	}
-
-	// ===== Getters e Setters =====
 	public Long getId() {
 		return id;
 	}
@@ -106,11 +62,12 @@ public class Usuario implements UserDetails, Serializable {
 		this.senha = senha;
 	}
 
-	public Perfil getPerfil() {
-		return perfil;
+	public Participante getParticipante() {
+		return participante;
 	}
 
-	public void setPerfil(Perfil perfil) {
-		this.perfil = perfil;
+	public void setParticipante(Participante participante) {
+		this.participante = participante;
 	}
+
 }

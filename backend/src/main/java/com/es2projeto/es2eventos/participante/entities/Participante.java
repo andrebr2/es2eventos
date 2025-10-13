@@ -35,7 +35,7 @@ public class Participante implements Serializable {
 	private String numero;
 	private String complemento;
 
-	@ManyToOne(cascade = CascadeType.PERSIST) // Persistirá se o endereco for novo
+	@ManyToOne(cascade = CascadeType.PERSIST)
 	@JoinColumn(name = "endereco_id")
 	private Endereco endereco;
 

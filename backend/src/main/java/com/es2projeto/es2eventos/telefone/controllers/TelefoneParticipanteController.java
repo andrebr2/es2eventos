@@ -3,7 +3,6 @@ package com.es2projeto.es2eventos.telefone.controllers;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,18 +23,25 @@ import jakarta.validation.Valid;
 @RequestMapping("/telefones-participantes")
 public class TelefoneParticipanteController {
 
-	@Autowired
-	private TelefoneParticipanteService service;
+	private final TelefoneParticipanteService service;
 
-	// Conversão entre DTO e Entidade
-	private TelefoneParticipante convertToEntity(TelefoneParticipanteDTO dto) {
-		return new TelefoneParticipante(dto.getId(), dto.getNroTelefone(), dto.getCodigoArea(),
-				dto.getParticipanteId());
+	public TelefoneParticipanteController(TelefoneParticipanteService service) {
+		this.service = service;
 	}
+
+	// Conversão DTO ↔ Entidade
+	private TelefoneParticipante convertToEntity(TelefoneParticipanteDTO dto) {
+	    TelefoneParticipante telefone = new TelefoneParticipante();
+	    telefone.setNroTelefone(dto.getNroTelefone());
+	    telefone.setCodigoArea(dto.getCodigoArea());
+	    // participante será setado no Service pelo participanteId
+	    return telefone;
+	}
+
 
 	private TelefoneParticipanteDTO convertToDTO(TelefoneParticipante entity) {
 		return new TelefoneParticipanteDTO(entity.getId(), entity.getNroTelefone(), entity.getCodigoArea(),
-				entity.getParticipanteId());
+				entity.getParticipante() != null ? entity.getParticipante().getId() : null);
 	}
 
 	@GetMapping
@@ -51,7 +57,8 @@ public class TelefoneParticipanteController {
 
 	@PostMapping
 	public ResponseEntity<TelefoneParticipanteDTO> create(@Valid @RequestBody TelefoneParticipanteDTO dto) {
-		TelefoneParticipante saved = service.save(convertToEntity(dto));
+		TelefoneParticipante telefone = convertToEntity(dto);
+		TelefoneParticipante saved = service.save(telefone, dto.getParticipanteId());
 		return ResponseEntity.ok(convertToDTO(saved));
 	}
 
@@ -59,7 +66,8 @@ public class TelefoneParticipanteController {
 	public ResponseEntity<TelefoneParticipanteDTO> update(@PathVariable Long id,
 			@Valid @RequestBody TelefoneParticipanteDTO dto) {
 		try {
-			TelefoneParticipante updated = service.update(id, convertToEntity(dto));
+			TelefoneParticipante telefone = convertToEntity(dto);
+			TelefoneParticipante updated = service.update(id, telefone, dto.getParticipanteId());
 			return ResponseEntity.ok(convertToDTO(updated));
 		} catch (RuntimeException e) {
 			return ResponseEntity.notFound().build();

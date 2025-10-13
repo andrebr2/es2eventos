@@ -1,53 +1,64 @@
 package com.es2projeto.es2eventos.email.entities;
 
+import java.io.Serializable;
+
+import com.es2projeto.es2eventos.participante.entities.Participante;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "tb_emails_participantes")
-public class EmailParticipante {
+public class EmailParticipante implements Serializable {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+    private static final long serialVersionUID = 1L;
 
-	private String enderecoEmail;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	private Long participanteId;
+    private String enderecoEmail;
 
-	public EmailParticipante() {
-	}
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "participante_id")
+    private Participante participante;
 
-	public EmailParticipante(String enderecoEmail, Long participanteId) {
-		this.enderecoEmail = enderecoEmail;
-		this.participanteId = participanteId;
-	}
+    public EmailParticipante() {
+    }
 
-	// Getters e Setters
-	public Long getId() {
-		return id;
-	}
+    public EmailParticipante(String enderecoEmail, Participante participante) {
+        this.enderecoEmail = enderecoEmail;
+        this.participante = participante;
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    // ===== Getters e Setters =====
+    public Long getId() {
+        return id;
+    }
 
-	public String getEnderecoEmail() {
-		return enderecoEmail;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public void setEnderecoEmail(String enderecoEmail) {
-		this.enderecoEmail = enderecoEmail;
-	}
+    public String getEnderecoEmail() {
+        return enderecoEmail;
+    }
 
-	public Long getParticipanteId() {
-		return participanteId;
-	}
+    public void setEnderecoEmail(String enderecoEmail) {
+        this.enderecoEmail = enderecoEmail;
+    }
 
-	public void setParticipanteId(Long participanteId) {
-		this.participanteId = participanteId;
-	}
+    public Participante getParticipante() {
+        return participante;
+    }
+
+    public void setParticipante(Participante participante) {
+        this.participante = participante;
+    }
 }

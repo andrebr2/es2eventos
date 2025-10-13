@@ -23,20 +23,22 @@ public class ParticipanteService {
 	private final EnderecoRepository enderecoRepository;
 	private final RestTemplate restTemplate;
 
-	// Injetando todos os repositórios + RestTemplate
 	public ParticipanteService(ParticipanteRepository participanteRepository,
 			TipoParticipanteRepository tipoParticipanteRepository, EnderecoRepository enderecoRepository,
 			RestTemplate restTemplate) {
+
 		this.participanteRepository = participanteRepository;
 		this.tipoParticipanteRepository = tipoParticipanteRepository;
 		this.enderecoRepository = enderecoRepository;
 		this.restTemplate = restTemplate;
 	}
 
+	@Transactional(readOnly = true)
 	public List<Participante> findAll() {
 		return participanteRepository.findAll();
 	}
 
+	@Transactional(readOnly = true)
 	public Optional<Participante> findById(Long id) {
 		return participanteRepository.findById(id);
 	}
@@ -48,8 +50,13 @@ public class ParticipanteService {
 		TipoParticipante tipo = tipoParticipanteRepository.findById(dto.getTipoParticipanteId())
 				.orElseThrow(() -> new RuntimeException("TipoParticipante não encontrado"));
 
-		Participante participante = new Participante(dto.getNome(), dto.getSobrenome(), tipo, dto.getNumero(),
-				dto.getComplemento(), endereco);
+		Participante participante = new Participante();
+		participante.setNome(dto.getNome());
+		participante.setSobrenome(dto.getSobrenome());
+		participante.setTipoParticipante(tipo);
+		participante.setNumero(dto.getNumero());
+		participante.setComplemento(dto.getComplemento());
+		participante.setEndereco(endereco);
 
 		return participanteRepository.save(participante);
 	}
@@ -83,6 +90,9 @@ public class ParticipanteService {
 		return enderecoRepository.findByCep(cep).orElseGet(() -> {
 			String url = "https://viacep.com.br/ws/" + cep + "/json/";
 			Endereco endereco = restTemplate.getForObject(url, Endereco.class);
+			if (endereco == null) {
+				throw new RuntimeException("Não foi possível buscar endereço pelo CEP " + cep);
+			}
 			return enderecoRepository.save(endereco);
 		});
 	}
