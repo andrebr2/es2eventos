@@ -2,6 +2,7 @@ package com.es2projeto.es2eventos.palestra.dto;
 
 import java.time.LocalDateTime;
 
+import com.es2projeto.es2eventos.evento.dto.EventoDTO;
 import com.es2projeto.es2eventos.palestra.entities.Palestra;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -16,19 +17,22 @@ public class PalestraDTO {
 	private String palestrante;
 	private Integer limiteVagas;
 	private String local;
+	private EventoDTO evento;
+
 
 	public PalestraDTO() {
 
 	}
 
 	public PalestraDTO(Long id, String nomePalestra, LocalDateTime dataHora, String palestrante, Integer limiteVagas,
-			String local) {
+			String local, EventoDTO evento) {
 		this.id = id;
 		this.nomePalestra = nomePalestra;
 		this.dataHora = dataHora;
 		this.palestrante = palestrante;
 		this.limiteVagas = limiteVagas;
 		this.local = local;
+		this.evento = evento;
 	}
 	
 	public PalestraDTO(Palestra entity) {
@@ -38,6 +42,7 @@ public class PalestraDTO {
 		palestrante = entity.getPalestrante();
 		limiteVagas = entity.getLimiteVagas();
 		local = entity.getLocal();
+		evento = new EventoDTO(entity.getEvento());
 	}
 
 	public Long getId() {
@@ -86,6 +91,14 @@ public class PalestraDTO {
 
 	public void setLocal(String local) {
 		this.local = local;
+	}
+
+	public EventoDTO getEvento() {
+		return evento;
+	}
+
+	public void setEvento(EventoDTO evento) {
+		this.evento = evento;
 	}
 
 }

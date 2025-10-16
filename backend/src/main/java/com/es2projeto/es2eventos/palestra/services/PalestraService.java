@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.es2projeto.es2eventos.evento.repositories.EventoRepository;
 import com.es2projeto.es2eventos.palestra.entities.Palestra;
 import com.es2projeto.es2eventos.palestra.repositories.PalestraRepository;
 
@@ -17,6 +18,9 @@ public class PalestraService {
 
 	@Autowired
     private PalestraRepository repository;
+	
+	@Autowired
+    private EventoRepository eventoRepository;
 
 	@Transactional(readOnly = true)
     public List<Palestra> findAll() {
@@ -46,7 +50,7 @@ public class PalestraService {
         entity.setPalestrante(novaPalestra.getPalestrante());
         entity.setLimiteVagas(novaPalestra.getLimiteVagas());
         entity.setLocal(novaPalestra.getLocal());
-
+        entity.setEvento(novaPalestra.getEvento());
         validarConflitoDeHorario(entity);
 
         return repository.save(entity);

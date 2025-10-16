@@ -1,39 +1,50 @@
 package com.es2projeto.es2eventos.participante.dto;
 
-import java.io.Serializable;
+import com.es2projeto.es2eventos.participante.entities.Participante;
+import com.es2projeto.es2eventos.tipo.dto.TipoParticipanteDTO;
 
-public class ParticipanteDTO implements Serializable {
+public class ParticipanteDTO {
 
-	private static final long serialVersionUID = 1L;
-
+	private Long id;
 	private String nome;
 	private String sobrenome;
-	private Long tipoParticipanteId;
+	private TipoParticipanteDTO tipoParticipante;
 	private String numero;
 	private String complemento;
-	private String cep; // Para buscar ou criar o Endereco
+	private String cep;
 
 	public ParticipanteDTO() {
 	}
 
-	public ParticipanteDTO(String nome, String sobrenome, Long tipoParticipanteId, String numero, String complemento,
-			String cep) {
+	public ParticipanteDTO(Long id, String nome, String sobrenome, TipoParticipanteDTO tipoParticipante, String numero,
+			String complemento, String cep) {
+		this.id = id;
 		this.nome = nome;
 		this.sobrenome = sobrenome;
-		this.tipoParticipanteId = tipoParticipanteId;
+		this.tipoParticipante = tipoParticipante;
 		this.numero = numero;
 		this.complemento = complemento;
 		this.cep = cep;
 	}
-	/*
+
 	public ParticipanteDTO(Participante entity) {
+		id = entity.getId();
 		nome = entity.getNome();
 		sobrenome = entity.getSobrenome();
 		tipoParticipante = new TipoParticipanteDTO(entity.getTipoParticipante());
 		numero = entity.getNumero();
 		complemento = entity.getComplemento();
-		cep = cep; - endereco = new EnderecoDTO(entity.getEndeeco());
-	}*/
+		cep = entity.getEndereco() != null ? entity.getEndereco().getCep() : null;
+
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
 
 	public String getNome() {
 		return nome;
@@ -51,12 +62,12 @@ public class ParticipanteDTO implements Serializable {
 		this.sobrenome = sobrenome;
 	}
 
-	public Long getTipoParticipanteId() {
-		return tipoParticipanteId;
+	public TipoParticipanteDTO getTipoParticipante() {
+		return tipoParticipante;
 	}
 
-	public void setTipoParticipanteId(Long tipoParticipanteId) {
-		this.tipoParticipanteId = tipoParticipanteId;
+	public void setTipoParticipante(TipoParticipanteDTO tipoParticipante) {
+		this.tipoParticipante = tipoParticipante;
 	}
 
 	public String getNumero() {

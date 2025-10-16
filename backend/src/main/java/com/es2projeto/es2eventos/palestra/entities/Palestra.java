@@ -4,12 +4,15 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+import com.es2projeto.es2eventos.evento.entities.Evento;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -29,19 +32,25 @@ public class Palestra implements Serializable {
 	private String palestrante;
 	private Integer limiteVagas;
 	private String local;
+	
+	@ManyToOne
+	@JoinColumn(name = "evento_id")
+	private Evento evento;
+
 
 	public Palestra() {
 
 	}
 
 	public Palestra(Long id, String nomePalestra, LocalDateTime dataHora, String palestrante, Integer limiteVagas,
-			String local) {
+			String local, Evento evento) {
 		this.id = id;
 		this.nomePalestra = nomePalestra;
 		this.dataHora = dataHora;
 		this.palestrante = palestrante;
 		this.limiteVagas = limiteVagas;
 		this.local = local;
+		this.evento = evento;
 	}
 
 	public Long getId() {
@@ -90,6 +99,14 @@ public class Palestra implements Serializable {
 
 	public void setLocal(String local) {
 		this.local = local;
+	}
+
+	public Evento getEvento() {
+		return evento;
+	}
+
+	public void setEvento(Evento evento) {
+		this.evento = evento;
 	}
 
 	@Override

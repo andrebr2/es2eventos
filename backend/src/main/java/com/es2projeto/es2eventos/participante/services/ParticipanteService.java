@@ -47,7 +47,7 @@ public class ParticipanteService {
 	public Participante save(ParticipanteDTO dto) {
 		Endereco endereco = verificarOuCadastrarEndereco(dto.getCep());
 
-		TipoParticipante tipo = tipoParticipanteRepository.findById(dto.getTipoParticipanteId())
+		TipoParticipante tipo = tipoParticipanteRepository.findById(dto.getTipoParticipante().getId())
 				.orElseThrow(() -> new RuntimeException("TipoParticipante não encontrado"));
 
 		Participante participante = new Participante();
@@ -67,7 +67,7 @@ public class ParticipanteService {
 			participante.setNome(dto.getNome());
 			participante.setSobrenome(dto.getSobrenome());
 
-			TipoParticipante tipo = tipoParticipanteRepository.findById(dto.getTipoParticipanteId())
+			TipoParticipante tipo = tipoParticipanteRepository.findById(dto.getTipoParticipante().getId())
 					.orElseThrow(() -> new RuntimeException("TipoParticipante não encontrado"));
 			participante.setTipoParticipante(tipo);
 
@@ -80,7 +80,9 @@ public class ParticipanteService {
 	}
 
 	public void delete(Long id) {
+
 		participanteRepository.deleteById(id);
+
 	}
 
 	private Endereco verificarOuCadastrarEndereco(String cep) {
