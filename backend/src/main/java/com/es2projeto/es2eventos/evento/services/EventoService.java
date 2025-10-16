@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.es2projeto.es2eventos.evento.entities.Evento;
 import com.es2projeto.es2eventos.evento.repositories.EventoRepository;
@@ -17,23 +18,23 @@ public class EventoService {
 	@Autowired
 	EventoRepository repository;
 	
-	// Retorna todos os eventos
+	@Transactional(readOnly = true)
     public List<Evento> findAll() {
         return repository.findAll();
     }
 
-    // Busca um evento por ID
+	@Transactional(readOnly = true)
     public Evento findById(Long id) {
         Optional<Evento> obj = repository.findById(id);
         return obj.orElseThrow(() -> new EntityNotFoundException("Evento não encontrado com ID: " + id));
     }
 
-    // Cria um novo evento
+	@Transactional
     public Evento insert(Evento evento) {
         return repository.save(evento);
     }
 
-    // Atualiza um evento existente
+	@Transactional
     public Evento update(Long id, Evento novoEvento) {
         Evento evento = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Evento não encontrado com ID: " + id));
@@ -48,7 +49,6 @@ public class EventoService {
         return repository.save(evento);
     }
 
-    // Exclui um evento por ID
     public void delete(Long id) {
         if (!repository.existsById(id)) {
             throw new EntityNotFoundException("Evento não encontrado com ID: " + id);
