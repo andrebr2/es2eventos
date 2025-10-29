@@ -3,11 +3,17 @@ package com.es2projeto.es2eventos.participante.dto;
 import com.es2projeto.es2eventos.participante.entities.Participante;
 import com.es2projeto.es2eventos.tipo.dto.TipoParticipanteDTO;
 
+import jakarta.persistence.Column;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Pattern;
+
 public class ParticipanteDTO {
 
 	private Long id;
 	private String nome;
 	private String sobrenome;
+	private String email;
+	private String telefone;
 	private TipoParticipanteDTO tipoParticipante;
 	private String numero;
 	private String complemento;
@@ -16,11 +22,13 @@ public class ParticipanteDTO {
 	public ParticipanteDTO() {
 	}
 
-	public ParticipanteDTO(Long id, String nome, String sobrenome, TipoParticipanteDTO tipoParticipante, String numero,
+	public ParticipanteDTO(Long id, String nome, String sobrenome, String email, String telefone,TipoParticipanteDTO tipoParticipante, String numero,
 			String complemento, String cep) {
 		this.id = id;
 		this.nome = nome;
 		this.sobrenome = sobrenome;
+		this.email = email;
+		this.telefone = telefone;
 		this.tipoParticipante = tipoParticipante;
 		this.numero = numero;
 		this.complemento = complemento;
@@ -31,6 +39,8 @@ public class ParticipanteDTO {
 		id = entity.getId();
 		nome = entity.getNome();
 		sobrenome = entity.getSobrenome();
+		email = entity.getEmail();
+		telefone = entity.getTelefone();
 		tipoParticipante = new TipoParticipanteDTO(entity.getTipoParticipante());
 		numero = entity.getNumero();
 		complemento = entity.getComplemento();
@@ -60,6 +70,23 @@ public class ParticipanteDTO {
 
 	public void setSobrenome(String sobrenome) {
 		this.sobrenome = sobrenome;
+	}
+
+	
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getTelefone() {
+		return telefone;
+	}
+
+	public void setTelefone(String telefone) {
+		this.telefone = telefone;
 	}
 
 	public TipoParticipanteDTO getTipoParticipante() {

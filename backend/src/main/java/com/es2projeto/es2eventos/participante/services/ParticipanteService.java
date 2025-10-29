@@ -45,6 +45,11 @@ public class ParticipanteService {
 
 	@Transactional
 	public Participante save(ParticipanteDTO dto) {
+		
+		if (participanteRepository.existsByEmail(dto.getEmail())) {
+	        throw new RuntimeException("E-mail já cadastrado: " + dto.getEmail());
+	    }
+		
 		Endereco endereco = verificarOuCadastrarEndereco(dto.getCep());
 
 		TipoParticipante tipo = tipoParticipanteRepository.findById(dto.getTipoParticipante().getId())
@@ -53,6 +58,8 @@ public class ParticipanteService {
 		Participante participante = new Participante();
 		participante.setNome(dto.getNome());
 		participante.setSobrenome(dto.getSobrenome());
+		participante.setEmail(dto.getEmail());
+		participante.setTelefone(dto.getTelefone());
 		participante.setTipoParticipante(tipo);
 		participante.setNumero(dto.getNumero());
 		participante.setComplemento(dto.getComplemento());
@@ -64,8 +71,17 @@ public class ParticipanteService {
 	@Transactional
 	public Participante update(Long id, ParticipanteDTO dto) {
 		return participanteRepository.findById(id).map(participante -> {
+			
+			// Verifica duplicidade de e-mail em outro registro
+	        if (!participante.getEmail().equals(dto.getEmail())
+	                && participanteRepository.existsByEmail(dto.getEmail())) {
+	            throw new RuntimeException("E-mail já cadastrado: " + dto.getEmail());
+	        }
+			
 			participante.setNome(dto.getNome());
 			participante.setSobrenome(dto.getSobrenome());
+			participante.setEmail(dto.getEmail());
+			participante.setTelefone(dto.getTelefone());
 
 			TipoParticipante tipo = tipoParticipanteRepository.findById(dto.getTipoParticipante().getId())
 					.orElseThrow(() -> new RuntimeException("TipoParticipante não encontrado"));
