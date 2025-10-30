@@ -21,11 +21,17 @@ public class SecurityConfig {
 	}
 
 	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		http.csrf(csrf -> csrf.disable()).authorizeHttpRequests(
-				auth -> auth.requestMatchers("/auth/**", "/h2-console/**").permitAll().anyRequest().authenticated())
-				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-				.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		http
+				.csrf(csrf -> csrf.disable()) // desativa CSRF (necessário pra API REST)
+				.cors(cors -> {}) // habilita o CORS configurado na CorsConfig
+				.authorizeHttpRequests(auth -> auth
+						.requestMatchers("/public/**", "/h2-console/**").permitAll() // libera rotas públicas
+						.anyRequest().permitAll() // usar o authenticated()
+				);
+
+		// Se usar H2
+		http.headers(headers -> headers.frameOptions(frame -> frame.disable()));
 
 		return http.build();
 	}
