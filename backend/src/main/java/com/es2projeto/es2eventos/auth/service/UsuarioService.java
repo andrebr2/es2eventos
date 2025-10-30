@@ -9,6 +9,7 @@ import java.util.UUID;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.es2projeto.es2eventos.auth.dto.UsuarioDTO;
 import com.es2projeto.es2eventos.auth.entity.Usuario;
 import com.es2projeto.es2eventos.auth.repository.UsuarioRepository;
 
@@ -18,7 +19,6 @@ public class UsuarioService {
 	private final UsuarioRepository usuarioRepository;
 	private final PasswordEncoder passwordEncoder;
 
-	// Armazena tokens temporariamente para redefinição de senha
 	private final Map<String, ResetToken> resetTokens = new HashMap<>();
 
 	public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
@@ -26,8 +26,16 @@ public class UsuarioService {
 		this.passwordEncoder = passwordEncoder;
 	}
 
-	public Usuario registerUsuario(Usuario usuario) {
-		usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
+	public Usuario registerUsuario(UsuarioDTO dto) {
+		if (usuarioRepository.findByEmail(dto.getEmail()).isPresent()) {
+			throw new RuntimeException("Email já cadastrado");
+		}
+
+		Usuario usuario = new Usuario();
+		usuario.setEmail(dto.getEmail());
+		usuario.setSenha(passwordEncoder.encode(dto.getSenha()));
+		usuario.setRole(dto.getRole());
+
 		return usuarioRepository.save(usuario);
 	}
 
@@ -35,25 +43,22 @@ public class UsuarioService {
 		return usuarioRepository.findByEmail(email);
 	}
 
-	
 	public void sendPasswordResetToken(String email) {
 		Optional<Usuario> usuarioOpt = usuarioRepository.findByEmail(email);
 		if (usuarioOpt.isEmpty())
 			return;
 
-		String token = UUID.randomUUID().toString(); // gera token aleatório
-		LocalDateTime expiracao = LocalDateTime.now().plusMinutes(30); // expira em 30 min
+		String token = UUID.randomUUID().toString();
+		LocalDateTime expiracao = LocalDateTime.now().plusMinutes(30);
 		resetTokens.put(token, new ResetToken(usuarioOpt.get().getId(), expiracao));
 
-		// Aqui você enviaria um email real. Por enquanto, só log
 		System.out.println("Token de reset para " + email + ": " + token);
 	}
-	
+
 	public boolean redefineSenha(String token, String novaSenha) {
 		ResetToken reset = resetTokens.get(token);
-		if (reset == null || reset.getExpiracao().isBefore(LocalDateTime.now())) {
-			return false; // token inválido ou expirado
-		}
+		if (reset == null || reset.getExpiracao().isBefore(LocalDateTime.now()))
+			return false;
 
 		Optional<Usuario> usuarioOpt = usuarioRepository.findById(reset.getUsuarioId());
 		if (usuarioOpt.isEmpty())
@@ -62,12 +67,10 @@ public class UsuarioService {
 		Usuario usuario = usuarioOpt.get();
 		usuario.setSenha(passwordEncoder.encode(novaSenha));
 		usuarioRepository.save(usuario);
-
-		resetTokens.remove(token); // remove token após uso
+		resetTokens.remove(token);
 		return true;
 	}
 
-	// Classe interna para armazenar token temporário
 	private static class ResetToken {
 		private final Long usuarioId;
 		private final LocalDateTime expiracao;

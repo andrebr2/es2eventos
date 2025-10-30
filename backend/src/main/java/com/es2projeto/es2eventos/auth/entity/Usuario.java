@@ -2,33 +2,36 @@ package com.es2projeto.es2eventos.auth.entity;
 
 import java.io.Serializable;
 
-import com.es2projeto.es2eventos.participante.entities.Participante;
-
-import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "tb_usuario")
+@Inheritance(strategy = InheritanceType.JOINED)
 public class Usuario implements Serializable {
 
 	private static final long serialVersionUID = 1L;
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	private String nome;
+	@Column(unique = true, nullable = false)
 	private String email;
+
+	@Column(nullable = false)
 	private String senha;
 
-	@OneToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "participante_id", referencedColumnName = "id")
-	private Participante participante;
+	@Enumerated(EnumType.STRING)
+	private Role role;
 
 	public Long getId() {
 		return id;
@@ -36,14 +39,6 @@ public class Usuario implements Serializable {
 
 	public void setId(Long id) {
 		this.id = id;
-	}
-
-	public String getNome() {
-		return nome;
-	}
-
-	public void setNome(String nome) {
-		this.nome = nome;
 	}
 
 	public String getEmail() {
@@ -62,12 +57,12 @@ public class Usuario implements Serializable {
 		this.senha = senha;
 	}
 
-	public Participante getParticipante() {
-		return participante;
+	public Role getRole() {
+		return role;
 	}
 
-	public void setParticipante(Participante participante) {
-		this.participante = participante;
+	public void setRole(Role role) {
+		this.role = role;
 	}
 
 }
