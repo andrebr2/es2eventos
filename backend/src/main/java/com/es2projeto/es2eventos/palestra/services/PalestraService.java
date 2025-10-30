@@ -34,27 +34,42 @@ public class PalestraService {
     }
 
     
-    @Transactional
-    public Palestra insert(Palestra palestra) {
-        validarConflitoDeHorario(palestra);
-        return repository.save(palestra);
-    }
+	@Transactional
+	public Palestra insert(Palestra palestra) {
+	    validarConflitoDeHorario(palestra);
 
-    @Transactional
-    public Palestra update(Long id, Palestra novaPalestra) {
-        Palestra entity = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Palestra não encontrada com id " + id));
+	    if (palestra.getEvento() != null && palestra.getEvento().getId() != null) {
+	        var evento = eventoRepository.findById(palestra.getEvento().getId())
+	            .orElseThrow(() -> new RuntimeException("Evento não encontrado!"));
+	        palestra.setEvento(evento);
+	    }
 
-        entity.setNomePalestra(novaPalestra.getNomePalestra());
-        entity.setDataHora(novaPalestra.getDataHora());
-        entity.setPalestrante(novaPalestra.getPalestrante());
-        entity.setLimiteVagas(novaPalestra.getLimiteVagas());
-        entity.setLocal(novaPalestra.getLocal());
-        entity.setEvento(novaPalestra.getEvento());
-        validarConflitoDeHorario(entity);
+	    return repository.save(palestra);
+	}
 
-        return repository.save(entity);
-    }
+
+	@Transactional
+	public Palestra update(Long id, Palestra novaPalestra) {
+	    Palestra entity = repository.findById(id)
+	            .orElseThrow(() -> new RuntimeException("Palestra não encontrada com id " + id));
+
+	    entity.setNomePalestra(novaPalestra.getNomePalestra());
+	    entity.setDataHora(novaPalestra.getDataHora());
+	    entity.setPalestrante(novaPalestra.getPalestrante());
+	    entity.setLimiteVagas(novaPalestra.getLimiteVagas());
+	    entity.setLocal(novaPalestra.getLocal());
+
+	    if (novaPalestra.getEvento() != null && novaPalestra.getEvento().getId() != null) {
+	        var evento = eventoRepository.findById(novaPalestra.getEvento().getId())
+	                .orElseThrow(() -> new RuntimeException("Evento não encontrado!"));
+	        entity.setEvento(evento);
+	    }
+
+	    validarConflitoDeHorario(entity);
+
+	    return repository.save(entity);
+	}
+
 
     public void delete(Long id) {
         if (!repository.existsById(id)) {
@@ -68,7 +83,6 @@ public class PalestraService {
         List<Palestra> palestrasDoMesmoPalestrante = repository.findByPalestrante(palestra.getPalestrante());
 
         for (Palestra p : palestrasDoMesmoPalestrante) {
-            // Ignora a própria palestra em caso de update
             if (p.getId() != null && palestra.getId() != null && p.getId().equals(palestra.getId())) {
                 continue;
             }

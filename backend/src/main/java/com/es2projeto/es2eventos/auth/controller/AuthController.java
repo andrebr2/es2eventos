@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.es2projeto.es2eventos.auth.dto.LoginRequest;
 import com.es2projeto.es2eventos.auth.dto.RedefinePasswordRequest;
 import com.es2projeto.es2eventos.auth.dto.ResetPasswordRequest;
-import com.es2projeto.es2eventos.auth.dto.UsuarioDTO;
 import com.es2projeto.es2eventos.auth.entity.Usuario;
 import com.es2projeto.es2eventos.auth.service.UsuarioService;
 import com.es2projeto.es2eventos.config.JwtUtil;
@@ -32,17 +31,7 @@ public class AuthController {
 		this.passwordEncoder = passwordEncoder;
 		this.jwtUtil = jwtUtil;
 	}
-
-	@PostMapping("/register")
-	public ResponseEntity<?> register(@RequestBody UsuarioDTO dto) {
-		try {
-			Usuario usuario = usuarioService.registerUsuario(dto);
-			return ResponseEntity.ok("Usuário registrado com sucesso: " + usuario.getEmail());
-		} catch (RuntimeException e) {
-			return ResponseEntity.status(400).body(e.getMessage());
-		}
-	}
-
+	
 	@PostMapping("/login")
 	public ResponseEntity<?> login(@RequestBody LoginRequest request) {
 		Optional<Usuario> usuarioOpt = usuarioService.findByEmail(request.getEmail());

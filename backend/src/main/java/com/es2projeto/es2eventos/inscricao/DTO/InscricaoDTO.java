@@ -4,67 +4,63 @@ import java.time.LocalDateTime;
 
 import com.es2projeto.es2eventos.inscricao.entities.Inscricao;
 import com.es2projeto.es2eventos.palestra.dto.PalestraDTO;
-import com.es2projeto.es2eventos.participante.dto.ParticipanteDTO;
+import com.es2projeto.es2eventos.participante.dto.ParticipanteRefDTO;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 public class InscricaoDTO {
 
-	private Long id;
-	private PalestraDTO palestra;
-	private ParticipanteDTO participante;
+    private Long id;
+    private PalestraDTO palestra;
+    private ParticipanteRefDTO participante;
 
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm")
-	private LocalDateTime dataHoraInscricao;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm")
+    private LocalDateTime dataHoraInscricao;
 
-	public InscricaoDTO() {
-		
-	}
+    public InscricaoDTO() {}
 
-	public InscricaoDTO(Long id, PalestraDTO palestra, ParticipanteDTO participante, LocalDateTime dataHoraInscricao) {
-		this.id = id;
-		this.palestra = palestra;
-		this.participante = participante;
-		this.dataHoraInscricao = dataHoraInscricao;
-	}
-	
-	public InscricaoDTO(Inscricao entity) {
-		id = entity.getId();
-		palestra = new PalestraDTO(entity.getPalestra());
-		participante = new ParticipanteDTO(entity.getParticipante());
-		dataHoraInscricao = entity.getDataHoraIncricao();
-	}
+    public InscricaoDTO(Long id, PalestraDTO palestra, ParticipanteRefDTO participante, LocalDateTime dataHoraInscricao) {
+        this.id = id;
+        this.palestra = palestra;
+        this.participante = participante;
+        this.dataHoraInscricao = dataHoraInscricao;
+    }
 
-	public Long getId() {
-		return id;
-	}
+    public InscricaoDTO(Inscricao entity) {
+        this.id = entity.getId();
+        this.palestra = new PalestraDTO(entity.getPalestra());
+        this.participante = new ParticipanteRefDTO(entity.getParticipante());
+        this.dataHoraInscricao = entity.getDataHoraInscricao();
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public PalestraDTO getPalestra() {
-		return palestra;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public void setPalestra(PalestraDTO palestra) {
-		this.palestra = palestra;
-	}
+    public PalestraDTO getPalestra() {
+        return palestra;
+    }
 
-	public ParticipanteDTO getParticipante() {
-		return participante;
-	}
+    public void setPalestra(PalestraDTO palestra) {
+        this.palestra = palestra;
+    }
 
-	public void setParticipante(ParticipanteDTO participante) {
-		this.participante = participante;
-	}
+    public ParticipanteRefDTO getParticipante() {
+        return participante;
+    }
 
-	public LocalDateTime getDataHoraInscricao() {
-		return dataHoraInscricao;
-	}
+    public void setParticipante(ParticipanteRefDTO participante) {
+        this.participante = participante;
+    }
 
-	public void setDataHoraInscricao(LocalDateTime dataHoraInscricao) {
-		this.dataHoraInscricao = dataHoraInscricao;
-	}
-	
-	
+    public LocalDateTime getDataHoraInscricao() {
+        return dataHoraInscricao;
+    }
+
+    public void setDataHoraInscricao(LocalDateTime dataHoraInscricao) {
+        this.dataHoraInscricao = dataHoraInscricao;
+    }
 }

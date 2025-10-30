@@ -29,7 +29,7 @@ public class EnderecoController {
 	public EnderecoDTO cadastrarEndereco(@RequestBody EnderecoDTO dto) {
 		Endereco enderecoViaCep = viaCepService.buscarEnderecoPorCep(dto.getCep());
 		Endereco salvo = enderecoRepository.save(enderecoViaCep);
-		return new EnderecoDTO(salvo); // converte a entidade para DTO
+		return new EnderecoDTO(salvo);
 	}
 
 	@GetMapping

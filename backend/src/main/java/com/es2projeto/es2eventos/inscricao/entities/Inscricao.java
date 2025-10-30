@@ -72,11 +72,11 @@ public class Inscricao implements Serializable {
 		this.participante = participante;
 	}
 
-	public LocalDateTime getDataHoraIncricao() {
+	public LocalDateTime getDataHoraInscricao() {
 		return dataHoraInscricao;
 	}
 
-	public void setDataHoraIncricao(LocalDateTime dataHoraInscricao) {
+	public void setDataHoraInscricao(LocalDateTime dataHoraInscricao) {
 		this.dataHoraInscricao = dataHoraInscricao;
 	}
 

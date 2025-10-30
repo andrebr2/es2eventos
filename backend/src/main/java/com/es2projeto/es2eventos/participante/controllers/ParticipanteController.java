@@ -1,8 +1,9 @@
 package com.es2projeto.es2eventos.participante.controllers;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.es2projeto.es2eventos.participante.dto.ParticipanteCadastroDTO;
 import com.es2projeto.es2eventos.participante.dto.ParticipanteDTO;
 import com.es2projeto.es2eventos.participante.entities.Participante;
 import com.es2projeto.es2eventos.participante.services.ParticipanteService;
@@ -20,41 +22,35 @@ import com.es2projeto.es2eventos.participante.services.ParticipanteService;
 @RequestMapping("/participantes")
 public class ParticipanteController {
 
-	private final ParticipanteService service;
-
-	public ParticipanteController(ParticipanteService service) {
-		this.service = service;
-	}
+	@Autowired
+	private ParticipanteService participanteService;
 
 	@GetMapping
-	public List<Participante> getAll() {
-		return service.findAll();
+	public List<ParticipanteDTO> listarTodos() {
+		return participanteService.findAll().stream().map(ParticipanteDTO::new)
+				.collect(Collectors.toList());
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<Participante> getById(@PathVariable Long id) {
-		return service.findById(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+	public ParticipanteDTO buscarPorId(@PathVariable Long id) {
+		return participanteService.findById(id).map(ParticipanteDTO::new)
+				.orElseThrow(() -> new RuntimeException("Participante não encontrado"));
 	}
 
 	@PostMapping
-	public Participante create(@RequestBody ParticipanteDTO dto) {
-		return service.save(dto);
+	public ParticipanteDTO cadastrar(@RequestBody ParticipanteCadastroDTO dto) {
+		Participante participante = participanteService.registrarParticipante(dto);
+		return new ParticipanteDTO(participante);
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<Participante> update(@PathVariable Long id, @RequestBody ParticipanteDTO dto) {
-		try {
-			Participante atualizado = service.update(id, dto);
-			return ResponseEntity.ok(atualizado);
-		} catch (RuntimeException e) {
-			return ResponseEntity.notFound().build();
-		}
+	public ParticipanteDTO atualizar(@PathVariable Long id, @RequestBody ParticipanteDTO dto) {
+		Participante participanteAtualizado = participanteService.update(id, dto);
+		return new ParticipanteDTO(participanteAtualizado);
 	}
 
 	@DeleteMapping("/{id}")
-	public ResponseEntity<Void> delete(@PathVariable Long id) {
-		service.delete(id);
-		return ResponseEntity.noContent().build();
+	public void deletar(@PathVariable Long id) {
+		participanteService.delete(id);
 	}
-
 }

@@ -8,6 +8,4 @@ import com.es2projeto.es2eventos.participante.entities.Participante;
 @Repository
 public interface ParticipanteRepository extends JpaRepository<Participante, Long> {
 
-	boolean existsByEmail(String email);
-
 }

@@ -3,12 +3,16 @@ package com.es2projeto.es2eventos.participante.services;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 
+import com.es2projeto.es2eventos.auth.entity.Role;
 import com.es2projeto.es2eventos.endereco.entities.Endereco;
 import com.es2projeto.es2eventos.endereco.repositories.EnderecoRepository;
+import com.es2projeto.es2eventos.endereco.services.ViaCepService;
+import com.es2projeto.es2eventos.participante.dto.ParticipanteCadastroDTO;
 import com.es2projeto.es2eventos.participante.dto.ParticipanteDTO;
 import com.es2projeto.es2eventos.participante.entities.Participante;
 import com.es2projeto.es2eventos.participante.repositories.ParticipanteRepository;
@@ -18,20 +22,20 @@ import com.es2projeto.es2eventos.tipo.repositories.TipoParticipanteRepository;
 @Service
 public class ParticipanteService {
 
-	private final ParticipanteRepository participanteRepository;
-	private final TipoParticipanteRepository tipoParticipanteRepository;
-	private final EnderecoRepository enderecoRepository;
-	private final RestTemplate restTemplate;
+	@Autowired
+	private ParticipanteRepository participanteRepository;
 
-	public ParticipanteService(ParticipanteRepository participanteRepository,
-			TipoParticipanteRepository tipoParticipanteRepository, EnderecoRepository enderecoRepository,
-			RestTemplate restTemplate) {
+	@Autowired
+	private TipoParticipanteRepository tipoParticipanteRepository;
 
-		this.participanteRepository = participanteRepository;
-		this.tipoParticipanteRepository = tipoParticipanteRepository;
-		this.enderecoRepository = enderecoRepository;
-		this.restTemplate = restTemplate;
-	}
+	@Autowired
+	private EnderecoRepository enderecoRepository;
+
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+
+	@Autowired
+	private ViaCepService viaCepService;
 
 	@Transactional(readOnly = true)
 	public List<Participante> findAll() {
@@ -44,21 +48,25 @@ public class ParticipanteService {
 	}
 
 	@Transactional
-	public Participante save(ParticipanteDTO dto) {
-		
-		if (participanteRepository.existsByEmail(dto.getEmail())) {
-	        throw new RuntimeException("E-mail já cadastrado: " + dto.getEmail());
-	    }
-		
-		Endereco endereco = verificarOuCadastrarEndereco(dto.getCep());
+	public Participante registrarParticipante(ParticipanteCadastroDTO dto) {
+		if (dto.getEndereco() == null || dto.getEndereco().getCep() == null || dto.getEndereco().getCep().isEmpty()) {
+			throw new IllegalArgumentException("CEP não pode ser vazio");
+		}
+
+		Endereco endereco = enderecoRepository.findByCep(dto.getEndereco().getCep()).orElseGet(() -> {
+			Endereco viaCepEndereco = viaCepService.buscarEnderecoPorCep(dto.getEndereco().getCep());
+			return enderecoRepository.save(viaCepEndereco);
+		});
 
 		TipoParticipante tipo = tipoParticipanteRepository.findById(dto.getTipoParticipante().getId())
 				.orElseThrow(() -> new RuntimeException("TipoParticipante não encontrado"));
 
 		Participante participante = new Participante();
+		participante.setEmail(dto.getEmail());
+		participante.setSenha(passwordEncoder.encode(dto.getSenha()));
+		participante.setRole(Role.PARTICIPANTE);
 		participante.setNome(dto.getNome());
 		participante.setSobrenome(dto.getSobrenome());
-		participante.setEmail(dto.getEmail());
 		participante.setTelefone(dto.getTelefone());
 		participante.setTipoParticipante(tipo);
 		participante.setNumero(dto.getNumero());
@@ -71,16 +79,8 @@ public class ParticipanteService {
 	@Transactional
 	public Participante update(Long id, ParticipanteDTO dto) {
 		return participanteRepository.findById(id).map(participante -> {
-			
-			// Verifica duplicidade de e-mail em outro registro
-	        if (!participante.getEmail().equals(dto.getEmail())
-	                && participanteRepository.existsByEmail(dto.getEmail())) {
-	            throw new RuntimeException("E-mail já cadastrado: " + dto.getEmail());
-	        }
-			
 			participante.setNome(dto.getNome());
 			participante.setSobrenome(dto.getSobrenome());
-			participante.setEmail(dto.getEmail());
 			participante.setTelefone(dto.getTelefone());
 
 			TipoParticipante tipo = tipoParticipanteRepository.findById(dto.getTipoParticipante().getId())
@@ -89,29 +89,34 @@ public class ParticipanteService {
 
 			participante.setNumero(dto.getNumero());
 			participante.setComplemento(dto.getComplemento());
-			participante.setEndereco(verificarOuCadastrarEndereco(dto.getCep()));
+
+			if (dto.getEndereco() != null && dto.getEndereco().getCep() != null) {
+				participante.setEndereco(buscarOuCriarEndereco(dto.getEndereco().getCep()));
+			}
 
 			return participanteRepository.save(participante);
 		}).orElseThrow(() -> new RuntimeException("Participante não encontrado"));
 	}
 
 	public void delete(Long id) {
-
 		participanteRepository.deleteById(id);
-
 	}
 
-	private Endereco verificarOuCadastrarEndereco(String cep) {
+	private Endereco buscarOuCriarEndereco(String cep) {
 		if (cep == null || cep.isEmpty())
-			return null;
+			throw new IllegalArgumentException("CEP não pode ser vazio");
 
 		return enderecoRepository.findByCep(cep).orElseGet(() -> {
-			String url = "https://viacep.com.br/ws/" + cep + "/json/";
-			Endereco endereco = restTemplate.getForObject(url, Endereco.class);
-			if (endereco == null) {
-				throw new RuntimeException("Não foi possível buscar endereço pelo CEP " + cep);
+
+			Endereco endereco = viaCepService.buscarEnderecoPorCep(cep);
+
+			if (endereco.getLogradouro() == null || endereco.getBairro() == null || endereco.getLocalidade() == null
+					|| endereco.getUf() == null) {
+				throw new RuntimeException("Endereço retornado pelo CEP " + cep + " está incompleto");
 			}
+
 			return enderecoRepository.save(endereco);
 		});
 	}
+
 }

@@ -9,7 +9,6 @@ import java.util.UUID;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.es2projeto.es2eventos.auth.dto.UsuarioDTO;
 import com.es2projeto.es2eventos.auth.entity.Usuario;
 import com.es2projeto.es2eventos.auth.repository.UsuarioRepository;
 
@@ -24,19 +23,6 @@ public class UsuarioService {
 	public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
 		this.usuarioRepository = usuarioRepository;
 		this.passwordEncoder = passwordEncoder;
-	}
-
-	public Usuario registerUsuario(UsuarioDTO dto) {
-		if (usuarioRepository.findByEmail(dto.getEmail()).isPresent()) {
-			throw new RuntimeException("Email já cadastrado");
-		}
-
-		Usuario usuario = new Usuario();
-		usuario.setEmail(dto.getEmail());
-		usuario.setSenha(passwordEncoder.encode(dto.getSenha()));
-		usuario.setRole(dto.getRole());
-
-		return usuarioRepository.save(usuario);
 	}
 
 	public Optional<Usuario> findByEmail(String email) {
