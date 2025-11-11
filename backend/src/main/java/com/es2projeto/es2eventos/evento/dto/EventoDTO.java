@@ -1,8 +1,11 @@
 package com.es2projeto.es2eventos.evento.dto;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import com.es2projeto.es2eventos.evento.entities.Evento;
+import com.es2projeto.es2eventos.palestra.dto.PalestraDTO;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 public class EventoDTO {
@@ -18,6 +21,8 @@ public class EventoDTO {
 	private String local;
 	private String descricao;
 	private String site;
+	
+	private List<PalestraDTO> palestras;
 
 	public EventoDTO() {
 
@@ -42,6 +47,10 @@ public class EventoDTO {
 		local = entity.getLocal();
 		descricao = entity.getDescricao();
 		site = entity.getSite();
+		palestras = entity.getPalestras()
+                .stream()
+                .map(PalestraDTO::new)
+                .collect(Collectors.toList());
 	}
 
 	public Long getId() {
@@ -98,6 +107,14 @@ public class EventoDTO {
 
 	public void setSite(String site) {
 		this.site = site;
+	}
+
+	public List<PalestraDTO> getPalestras() {
+		return palestras;
+	}
+
+	public void setPalestras(List<PalestraDTO> palestras) {
+		this.palestras = palestras;
 	}
 
 }

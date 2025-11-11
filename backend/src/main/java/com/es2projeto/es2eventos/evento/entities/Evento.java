@@ -2,16 +2,22 @@ package com.es2projeto.es2eventos.evento.entities;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
+import com.es2projeto.es2eventos.palestra.entities.Palestra;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -38,6 +44,10 @@ public class Evento implements Serializable {
 	private String descricao;
 	
 	private String site;
+	
+	@OneToMany(mappedBy = "evento", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<Palestra> palestras = new ArrayList<>();
 
 	public Evento() {
 
@@ -109,6 +119,19 @@ public class Evento implements Serializable {
 	public void setSite(String site) {
 		this.site = site;
 	}
+	
+	public List<Palestra> getPalestras() { return palestras; }
+    public void setPalestras(List<Palestra> palestras) { this.palestras = palestras; }
+
+    public void addPalestra(Palestra palestra) {
+        palestras.add(palestra);
+        palestra.setEvento(this);
+    }
+
+    public void removePalestra(Palestra palestra) {
+        palestras.remove(palestra);
+        palestra.setEvento(null);
+    }
 
 	@Override
 	public int hashCode() {

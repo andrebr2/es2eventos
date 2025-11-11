@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 import com.es2projeto.es2eventos.evento.entities.Evento;
+import com.es2projeto.es2eventos.palestra.dto.PalestraDTO;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import jakarta.persistence.Entity;
@@ -35,6 +37,7 @@ public class Palestra implements Serializable {
 	
 	@ManyToOne
 	@JoinColumn(name = "evento_id")
+	@JsonBackReference
 	private Evento evento;
 
 
@@ -52,6 +55,15 @@ public class Palestra implements Serializable {
 		this.local = local;
 		this.evento = evento;
 	}
+	
+	public Palestra(PalestraDTO dto) {
+        this.id = dto.getId();
+        this.nomePalestra = dto.getNomePalestra();
+        this.dataHora = dto.getDataHora();
+        this.palestrante = dto.getPalestrante();
+        this.limiteVagas = dto.getLimiteVagas();
+        this.local = dto.getLocal();
+    }
 
 	public Long getId() {
 		return id;

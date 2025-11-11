@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.es2projeto.es2eventos.evento.entities.Evento;
 import com.es2projeto.es2eventos.evento.repositories.EventoRepository;
+import com.es2projeto.es2eventos.palestra.entities.Palestra;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -17,43 +18,55 @@ public class EventoService {
 
 	@Autowired
 	EventoRepository repository;
-	
-	@Transactional(readOnly = true)
-    public List<Evento> findAll() {
-        return repository.findAll();
-    }
 
 	@Transactional(readOnly = true)
-    public Evento findById(Long id) {
-        Optional<Evento> obj = repository.findById(id);
-        return obj.orElseThrow(() -> new EntityNotFoundException("Evento não encontrado com ID: " + id));
-    }
+	public List<Evento> findAll() {
+		return repository.findAll();
+	}
+
+	@Transactional(readOnly = true)
+	public Evento findById(Long id) {
+		Optional<Evento> obj = repository.findById(id);
+		return obj.orElseThrow(() -> new EntityNotFoundException("Evento não encontrado com ID: " + id));
+	}
 
 	@Transactional
-    public Evento insert(Evento evento) {
-        return repository.save(evento);
-    }
+	public Evento insert(Evento evento) {
+		if (evento.getPalestras() != null) {
+			for (Palestra p : evento.getPalestras()) {
+				p.setEvento(evento); // garante vínculo bidirecional
+			}
+		}
+		return repository.save(evento);
+	}
 
 	@Transactional
-    public Evento update(Long id, Evento novoEvento) {
-        Evento evento = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Evento não encontrado com ID: " + id));
+	public Evento update(Long id, Evento novoEvento) {
+		Evento evento = repository.findById(id)
+				.orElseThrow(() -> new EntityNotFoundException("Evento não encontrado com ID: " + id));
 
-        evento.setNomeEvento(novoEvento.getNomeEvento());
-        evento.setDataInicio(novoEvento.getDataInicio());
-        evento.setDataTermino(novoEvento.getDataTermino());
-        evento.setLocal(novoEvento.getLocal());
-        evento.setDescricao(novoEvento.getDescricao());
-        evento.setSite(novoEvento.getSite());
+		evento.setNomeEvento(novoEvento.getNomeEvento());
+		evento.setDataInicio(novoEvento.getDataInicio());
+		evento.setDataTermino(novoEvento.getDataTermino());
+		evento.setLocal(novoEvento.getLocal());
+		evento.setDescricao(novoEvento.getDescricao());
+		evento.setSite(novoEvento.getSite());
 
-        return repository.save(evento);
-    }
+		if (novoEvento.getPalestras() != null) {
+			evento.getPalestras().clear();
+			for (Palestra p : novoEvento.getPalestras()) {
+				evento.addPalestra(p);
+			}
+		}
 
-    public void delete(Long id) {
-        if (!repository.existsById(id)) {
-            throw new EntityNotFoundException("Evento não encontrado com ID: " + id);
-        }
-        repository.deleteById(id);
-    }
-	
+		return repository.save(evento);
+	}
+
+	public void delete(Long id) {
+		if (!repository.existsById(id)) {
+			throw new EntityNotFoundException("Evento não encontrado com ID: " + id);
+		}
+		repository.deleteById(id);
+	}
+
 }

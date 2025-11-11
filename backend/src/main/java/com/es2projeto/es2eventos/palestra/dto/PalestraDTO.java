@@ -42,7 +42,6 @@ public class PalestraDTO {
 		palestrante = entity.getPalestrante();
 		limiteVagas = entity.getLimiteVagas();
 		local = entity.getLocal();
-		evento = new EventoDTO(entity.getEvento());
 	}
 
 	public Long getId() {
