@@ -34,23 +34,24 @@ public class AuthController {
 	
 	@PostMapping("/login")
 	public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-		Optional<Usuario> usuarioOpt = usuarioService.findByEmail(request.getEmail());
+	    Optional<Usuario> usuarioOpt = usuarioService.findByUsername(request.getUsername());
 
-		if (usuarioOpt.isPresent() && passwordEncoder.matches(request.getSenha(), usuarioOpt.get().getSenha())) {
-			Usuario usuario = usuarioOpt.get();
-			String token = jwtUtil.generateToken(usuario.getEmail());
+	    if (usuarioOpt.isPresent() && passwordEncoder.matches(request.getSenha(), usuarioOpt.get().getSenha())) {
+	        Usuario usuario = usuarioOpt.get();
+	        String token = jwtUtil.generateToken(usuario.getUsername());
 
-			Map<String, Object> response = new HashMap<>();
-			response.put("id", usuario.getId());
-			response.put("email", usuario.getEmail());
-			response.put("role", usuario.getRole());
-			response.put("token", token);
+	        Map<String, Object> response = new HashMap<>();
+	        response.put("id", usuario.getId());
+	        response.put("username", usuario.getUsername());
+	        response.put("role", usuario.getRole());
+	        response.put("token", token);
 
-			return ResponseEntity.ok(response);
-		}
+	        return ResponseEntity.ok(response);
+	    }
 
-		return ResponseEntity.status(401).body("Credenciais inválidas");
+	    return ResponseEntity.status(401).body("Credenciais inválidas");
 	}
+
 
 	@PostMapping("/reset")
 	public ResponseEntity<?> solicitarReset(@RequestBody ResetPasswordRequest request) {

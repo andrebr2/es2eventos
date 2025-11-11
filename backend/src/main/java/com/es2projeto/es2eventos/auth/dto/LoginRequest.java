@@ -2,30 +2,30 @@ package com.es2projeto.es2eventos.auth.dto;
 
 public class LoginRequest {
 
-	private String email;
-	private String senha;
+    private String username;
+    private String senha;
 
-	public LoginRequest() {
-	}
+    public LoginRequest() {
+    }
 
-	public LoginRequest(String email, String senha) {
-		this.email = email;
-		this.senha = senha;
-	}
+    public LoginRequest(String username, String senha) {
+        this.username = username;
+        this.senha = senha;
+    }
 
-	public String getEmail() {
-		return email;
-	}
+    public String getUsername() {
+        return username;
+    }
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
-	public String getSenha() {
-		return senha;
-	}
+    public String getSenha() {
+        return senha;
+    }
 
-	public void setSenha(String senha) {
-		this.senha = senha;
-	}
+    public void setSenha(String senha) {
+        this.senha = senha;
+    }
 }

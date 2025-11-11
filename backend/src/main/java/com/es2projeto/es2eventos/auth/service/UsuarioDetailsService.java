@@ -2,9 +2,7 @@ package com.es2projeto.es2eventos.auth.service;
 
 import java.util.Optional;
 
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
 
 import com.es2projeto.es2eventos.auth.entity.Usuario;
@@ -20,18 +18,17 @@ public class UsuarioDetailsService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Optional<Usuario> usuarioOpt = usuarioRepository.findByEmail(email);
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Optional<Usuario> usuarioOpt = usuarioRepository.findByUsername(username);
 
         if (usuarioOpt.isEmpty()) {
-            throw new UsernameNotFoundException("Usuário não encontrado: " + email);
+            throw new UsernameNotFoundException("Usuário não encontrado: " + username);
         }
 
         Usuario usuario = usuarioOpt.get();
 
-        // Retorna um UserDetails padrão do Spring Security
         return org.springframework.security.core.userdetails.User
-                .withUsername(usuario.getEmail())
+                .withUsername(usuario.getUsername())
                 .password(usuario.getSenha())
                 .authorities("USER")
                 .build();

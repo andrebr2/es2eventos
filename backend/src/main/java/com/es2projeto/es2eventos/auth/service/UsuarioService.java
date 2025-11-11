@@ -28,6 +28,10 @@ public class UsuarioService {
 	public Optional<Usuario> findByEmail(String email) {
 		return usuarioRepository.findByEmail(email);
 	}
+	
+	 public Optional<Usuario> findByUsername(String username) {
+	        return usuarioRepository.findByUsername(username);
+	    }
 
 	public void sendPasswordResetToken(String email) {
 		Optional<Usuario> usuarioOpt = usuarioRepository.findByEmail(email);

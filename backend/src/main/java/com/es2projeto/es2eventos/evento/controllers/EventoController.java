@@ -48,6 +48,12 @@ public class EventoController {
 	        return ResponseEntity.ok(palestras);
 	    }
 	    
+	    @GetMapping("/{id}/palestras/proximas")
+	    public ResponseEntity<List<PalestraDTO>> findProximasPalestrasByEvento(@PathVariable Long id) {
+	        List<PalestraDTO> palestras = service.findProximasPalestras(id);
+	        return ResponseEntity.ok(palestras);
+	    }
+	    
 	    @PostMapping("/{id}/palestras")
 	    public ResponseEntity<EventoDTO> addPalestra(@PathVariable Long id, @RequestBody PalestraDTO palestraDTO) {
 	        Evento evento = service.findById(id);
